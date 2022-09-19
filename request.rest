@@ -1,0 +1,49 @@
+GET http://localhost:5000/forum/main/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoid2Fubm4iLCJlbWFpbCI6IndhbkBnbWFpbC5jb20iLCJpYXQiOjE2NjMzMDc3OTQsImV4cCI6MTY2MzMwNzgwOX0.WMJZCHP_6yCS_QhDzTCxgifxQOsrmkz4BTtBm8qCVeE
+
+###
+POST http://localhost:5000/register
+Content-Type: application/json
+
+{
+    "username": "wan",
+    "fullname": "iwan plamboyan",
+    "email": "wann@gmail.com",
+    "password": "12345",
+    "confirmPassword": "12345"
+}
+
+###
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "email": "wan@gmail.com",
+    "password": "12345"
+}
+
+###
+GET http://localhost:5000/token
+
+###
+DELETE http://localhost:5000/logout
+
+###
+GET http://localhost:5000/forum/main
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoid2Fubm4iLCJlbWFpbCI6IndhbkBnbWFpbC5jb20iLCJpYXQiOjE2NjMzMDgzNDMsImV4cCI6MTY2MzMwODM1OH0.qbwm107oNQKvL_i_g2OAtMVkPhouU7JHsMfadztkU5c
+
+###
+POST http://localhost:5000/forum/main
+Content-Type: application/json
+
+{
+    "title": "Programming"
+}
+
+###
+GET http://localhost:5000/forum/main/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInVzZXJuYW1lIjoid2Fubm4iLCJlbWFpbCI6IndhbkBnbWFpbC5jb20iLCJpYXQiOjE2NjMzMDc3OTQsImV4cCI6MTY2MzMwNzgwOX0.WMJZCHP_6yCS_QhDzTCxgifxQOsrmkz4BTtBm8qCVeE
+
+{
+
+}
