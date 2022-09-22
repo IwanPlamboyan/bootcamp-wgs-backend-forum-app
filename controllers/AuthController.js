@@ -55,13 +55,14 @@ export const Login = async (req, res) => {
     if (!match) return res.status(400).json({ msg: 'Wrong Password' });
 
     const userId = user[0].id;
+    const username = user[0].username;
     const email = user[0].email;
     const roles = user[0].roles;
 
-    const accessToken = jwt.sign({ userId, email, roles }, process.env.ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ userId, username, email, roles }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '20s',
     });
-    const refreshToken = jwt.sign({ userId, email, roles }, process.env.REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ userId, username, email, roles }, process.env.REFRESH_TOKEN_SECRET, {
       expiresIn: '1d',
     });
     await Users.update(
