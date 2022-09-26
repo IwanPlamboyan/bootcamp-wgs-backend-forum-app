@@ -35,6 +35,7 @@ export const Register = async (req, res) => {
       username: username,
       email: email,
       password: hashPassword,
+      foto_profile: 'profile-default.jpg',
       roles: 'user',
     });
     res.json({ msg: 'Register Berhasil' });
@@ -57,12 +58,13 @@ export const Login = async (req, res) => {
     const userId = user[0].id;
     const username = user[0].username;
     const email = user[0].email;
+    const foto_profile = user[0].foto_profile;
     const roles = user[0].roles;
 
-    const accessToken = jwt.sign({ userId, username, email, roles }, process.env.ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ userId, username, email, foto_profile, roles }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '20s',
     });
-    const refreshToken = jwt.sign({ userId, username, email, roles }, process.env.REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ userId, username, email, foto_profile, roles }, process.env.REFRESH_TOKEN_SECRET, {
       expiresIn: '1d',
     });
     await Users.update(
