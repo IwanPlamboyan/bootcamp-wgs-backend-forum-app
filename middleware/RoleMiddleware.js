@@ -1,4 +1,4 @@
-import jwt, { decode } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 export const publicAll = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -8,6 +8,7 @@ export const publicAll = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) return res.sendStatus(403);
+    req.username = decoded.username;
     req.email = decoded.email;
     req.roles = decoded.roles;
 
@@ -23,6 +24,7 @@ export const isModerator = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) return res.sendStatus(403);
+    req.username = decoded.username;
     req.email = decoded.email;
     req.roles = decoded.roles;
 
@@ -40,6 +42,7 @@ export const isAdmin = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
     if (err) return res.sendStatus(403);
+    req.username = decoded.username;
     req.email = decoded.email;
     req.roles = decoded.roles;
 

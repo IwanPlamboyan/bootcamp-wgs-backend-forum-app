@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import db from '../config/Database.js';
-import MainForum from './MainForumModel.js';
+import User from './UserModel.js';
 
 const { DataTypes } = Sequelize;
 
@@ -10,11 +10,28 @@ const SubForum = db.define(
     title: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+        len: [1, 255],
+      },
     },
-    description: {
+    body: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    image_name: {
+      type: DataTypes.STRING,
+    },
+    image_url: {
       type: DataTypes.STRING,
     },
     main_id: {
+      type: DataTypes.INTEGER,
+    },
+    user_id: {
       type: DataTypes.INTEGER,
     },
   },
@@ -23,7 +40,8 @@ const SubForum = db.define(
   }
 );
 
-// SubForum.belongsTo(MainForum, { foreignKey: 'main_id' });
+SubForum.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(SubForum, { foreignKey: 'user_id' });
 
 // (async () => {
 //   await db.sync();

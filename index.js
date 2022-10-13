@@ -20,7 +20,7 @@ try {
   console.log(error);
 }
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: process.env.ORIGIN_CORS }));
 app.use(cookieParser());
 app.use(fileUpload());
 app.use(express.static('public'));

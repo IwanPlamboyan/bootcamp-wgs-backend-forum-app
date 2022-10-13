@@ -1,4 +1,4 @@
-import Users from '../models/UserModel.js';
+import User from '../models/UserModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
@@ -13,14 +13,14 @@ export const Register = async (req, res) => {
   if (password !== confirmPassword) return res.status(400).json({ msg: 'Password dan confirm Password tidak cocok' });
 
   try {
-    const duplikatEmail = await Users.findOne({
+    const duplikatEmail = await User.findOne({
       attributes: ['email'],
       where: { email: email },
     });
 
     if (duplikatEmail !== null) return res.status(400).json({ msg: 'Email sudah terdaftar, gunakan email yang lain' });
 
-    const duplikatUsername = await Users.findOne({
+    const duplikatUsername = await User.findOne({
       attributes: ['username'],
       where: { username: username },
     });
@@ -31,11 +31,12 @@ export const Register = async (req, res) => {
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(password, salt);
 
-    await Users.create({
+    await User.create({
       username: username,
       email: email,
       password: hashPassword,
       foto_profile: 'profile-default.jpg',
+      image_url: `${req.protocol}://${req.get('host')}/img/foto_profile/profile-default.jpg`,
       roles: 'user',
     });
     res.json({ msg: 'Register Berhasil' });
@@ -46,7 +47,7 @@ export const Register = async (req, res) => {
 
 export const Login = async (req, res) => {
   try {
-    const user = await Users.findAll({
+    const user = await User.findAll({
       where: {
         email: req.body.email,
       },
@@ -58,16 +59,16 @@ export const Login = async (req, res) => {
     const userId = user[0].id;
     const username = user[0].username;
     const email = user[0].email;
-    const foto_profile = user[0].foto_profile;
+    const image_url = user[0].image_url;
     const roles = user[0].roles;
 
-    const accessToken = jwt.sign({ userId, username, email, foto_profile, roles }, process.env.ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ userId, username, email, image_url, roles }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '20s',
     });
-    const refreshToken = jwt.sign({ userId, username, email, foto_profile, roles }, process.env.REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ userId, username, email, image_url, roles }, process.env.REFRESH_TOKEN_SECRET, {
       expiresIn: '1d',
     });
-    await Users.update(
+    await User.update(
       { refresh_token: refreshToken },
       {
         where: {
@@ -88,14 +89,18 @@ export const Login = async (req, res) => {
 export const Logout = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.sendStatus(204);
-  const user = await Users.findAll({
+
+  const user = await User.findOne({
     where: {
       refresh_token: refreshToken,
     },
   });
+
   if (!user) return res.sendStatus(204);
-  const userId = user[0].id;
-  await Users.update(
+
+  const userId = user.id;
+
+  await User.update(
     { refresh_token: null },
     {
       where: {

@@ -17,6 +17,7 @@ const MainForum = db.define(
   }
 );
 
+SubForum.belongsTo(MainForum, { foreignKey: 'main_id' });
 MainForum.hasMany(SubForum, { foreignKey: 'main_id' });
 
 // (async () => {

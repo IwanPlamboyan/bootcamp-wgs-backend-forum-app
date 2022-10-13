@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import db from '../config/Database.js';
-import Users from './UserModel.js';
+import User from './UserModel.js';
 
 const { DataTypes } = Sequelize;
 
@@ -25,7 +25,7 @@ const Discussion = db.define(
   }
 );
 
-Discussion.belongsTo(Users, { foreignKey: 'user_id' });
+Discussion.belongsTo(User, { foreignKey: 'user_id' });
 
 // (async () => {
 //   await db.sync();

@@ -1,26 +1,54 @@
 import MainForum from '../models/MainForumModel.js';
 import validator from 'validator';
-import SubForum from '../models/SubForumModel.js';
+import { Op } from 'sequelize';
 
-export const getAllForum = async (req, res) => {
-  try {
-    const forums = await MainForum.findAll({ include: [SubForum] });
-    res.status(200).json(forums);
-  } catch (error) {
-    console.log(error.message);
-  }
-};
+export const getMainForum = async (req, res) => {
+  const last_id = parseInt(req.query.last_id) || 0;
+  const limit = parseInt(req.query.limit) || 20;
+  const search = req.query.search_query || '';
 
-export const getAllMainForum = async (req, res) => {
-  try {
-    const mainForums = await MainForum.findAll({
-      attributes: ['id', 'title'],
+  let result = [];
+  if (last_id < 1) {
+    const results = await MainForum.findAll({
+      attributes: ['id', 'title', 'createdAt', 'updatedAt'],
+      where: {
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+        ],
+      },
+      limit: limit,
+      order: [['id', 'DESC']],
     });
-
-    res.status(200).json(mainForums);
-  } catch (error) {
-    console.log(error.message);
+    result = results;
+  } else {
+    const results = await MainForum.findAll({
+      where: {
+        id: {
+          [Op.lt]: last_id,
+        },
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: '%' + search + '%',
+            },
+          },
+        ],
+      },
+      limit: limit,
+      order: [['id', 'DESC']],
+    });
+    result = results;
   }
+
+  res.json({
+    result: result,
+    last_id: result.length ? result[result.length - 1].id : 0,
+    hasMore: result.length >= limit ? true : false,
+  });
 };
 
 export const getMainForumById = async (req, res) => {

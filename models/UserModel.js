@@ -3,12 +3,17 @@ import db from '../config/Database.js';
 
 const { DataTypes } = Sequelize;
 
-const Users = db.define(
+const User = db.define(
   'users',
   {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
+      validate: {
+        notEmpty: true,
+        len: [1, 255],
+      },
     },
     fullname: {
       type: DataTypes.STRING,
@@ -17,12 +22,22 @@ const Users = db.define(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      validate: {
+        notEmpty: true,
+        isEmail: true,
+      },
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
     foto_profile: {
+      type: DataTypes.STRING,
+    },
+    image_url: {
       type: DataTypes.STRING,
     },
     description: {
@@ -41,4 +56,8 @@ const Users = db.define(
   }
 );
 
-export default Users;
+// (async () => {
+//   await db.sync();
+// })();
+
+export default User;

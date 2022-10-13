@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import validator from 'validator';
 import path from 'path';
 import fs from 'fs';
-import Users from '../models/UserModel.js';
+import User from '../models/UserModel.js';
 
 export const getDiscussionBySubForum = async (req, res) => {
   const subId = req.query.sub_id;
@@ -19,7 +19,7 @@ export const getDiscussionBySubForum = async (req, res) => {
       },
       include: [
         {
-          model: Users,
+          model: User,
           attributes: ['username'],
         },
       ],
@@ -41,7 +41,7 @@ export const getDiscussionBySubForum = async (req, res) => {
       },
       include: [
         {
-          model: Users,
+          model: User,
           attributes: ['username'],
         },
       ],
@@ -100,7 +100,7 @@ export const deleteDiscussion = async (req, res) => {
     },
     include: [
       {
-        model: Users,
+        model: User,
         attributes: ['email'],
       },
     ],

@@ -1,5 +1,5 @@
 import validator from 'validator';
-import Users from '../models/UserModel.js';
+import User from '../models/UserModel.js';
 import { Op } from 'sequelize';
 import path from 'path';
 import fs from 'fs';
@@ -9,7 +9,7 @@ export const getUsers = async (req, res) => {
   const limit = parseInt(req.query.limit) || 20;
   const search = req.query.page || '';
   const offset = limit * page;
-  const totalRows = await Users.count({
+  const totalRows = await User.count({
     where: {
       [Op.or]: [
         {
@@ -26,7 +26,7 @@ export const getUsers = async (req, res) => {
     },
   });
   const totalPage = Math.ceil(totalRows / limit);
-  const result = await Users.findAll({
+  const result = await User.findAll({
     where: {
       [Op.or]: [
         {
@@ -55,13 +55,13 @@ export const getUsers = async (req, res) => {
   });
 };
 
-export const getUserById = async (req, res) => {
+export const getUserByUsername = async (req, res) => {
   try {
-    const response = await Users.findOne({
+    const response = await User.findOne({
       where: {
-        id: req.params.id,
+        username: req.params.username,
       },
-      attributes: ['id', 'username', 'fullname', 'email', 'foto_profile', 'description'],
+      attributes: ['id', 'username', 'fullname', 'email', 'foto_profile', 'image_url', 'description'],
     });
     res.json(response);
   } catch (error) {
@@ -70,30 +70,26 @@ export const getUserById = async (req, res) => {
 };
 
 export const editprofile = async (req, res) => {
-  const { oldUsername, newUsername, fullname, description } = req.body;
+  const { fullname, description } = req.body;
 
-  if (validator.isEmpty(username)) return res.status(400).json({ msg: 'Username harus diisi' });
-  const duplikatUsername = await Users.findOne({
-    attributes: ['username'],
-    where: { username: username },
-  });
-
-  if (duplikatUsername !== null && oldUsername !== newUsername) return res.status(400).json({ msg: 'Username sudah digunakan, gunakan username yang lain' });
-
-  const user = await Users.findOne({
+  const user = await User.findOne({
     where: {
       id: req.params.id,
     },
   });
   if (!user) return res.status(404).json({ msg: 'user tidak ditemukan' });
 
-  let fileName = '';
+  const profileDefault = 'profile-default.jpg';
+  let imageName = '';
+  let imageUrl = '';
   if (req.files === null) {
-    fileName = user.foto_profile;
+    imageName = user.foto_profile;
+    imageUrl = user.image_url;
   } else {
-    const file = req.files.file;
+    const file = req.files.foto_profile;
     const ext = path.extname(file.name);
-    fileName = file.md5 + ext;
+    imageName = file.md5 + new Date().toLocaleTimeString() + ext;
+    imageUrl = `${req.protocol}://${req.get('host')}/img/foto_profile/${imageName}`;
     const allowedType = ['.png', '.jpg', '.jpeg'];
 
     if (!allowedType.includes(ext.toLocaleLowerCase())) return res.status(422).json({ msg: 'Ini bukan gambar' });
@@ -101,17 +97,19 @@ export const editprofile = async (req, res) => {
     const fileSize = file.data.length;
     if (fileSize > 5000000) return res.status(422).json({ msg: 'Gambar harus kurang dari 5MB' });
 
-    const filePath = `./public/img/foto_profile/${user.image}`;
-    fs.unlinkSync(filePath);
+    if (user.image !== profileDefault) {
+      const filePath = `./public/img/foto_profile/${user.foto_profile}`;
+      fs.unlinkSync(filePath);
+    }
 
-    file.mv(`./public/img/foto_profile/${fileName}`, (err) => {
+    file.mv(`./public/img/foto_profile/${imageName}`, (err) => {
       if (err) return res.status(500).json({ msg: err.message });
     });
   }
 
   try {
-    await Product.update(
-      { username: username, fullname: fullname, foto_profile: fileName, description: description },
+    await User.update(
+      { fullname: fullname, foto_profile: imageName, image_url: imageUrl, description: description },
       {
         where: {
           id: req.params.id,
@@ -134,14 +132,14 @@ export const createModerator = async (req, res) => {
   if (password !== confirmPassword) return res.status(400).json({ msg: 'Password dan confirm Password tidak cocok' });
 
   try {
-    const duplikatEmail = await Users.findOne({
+    const duplikatEmail = await User.findOne({
       attributes: ['email'],
       where: { email: email },
     });
 
     if (duplikatEmail !== null) return res.status(400).json({ msg: 'Email sudah terdaftar, gunakan email yang lain' });
 
-    const duplikatUsername = await Users.findOne({
+    const duplikatUsername = await User.findOne({
       attributes: ['username'],
       where: { username: username },
     });
@@ -152,7 +150,7 @@ export const createModerator = async (req, res) => {
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(password, salt);
 
-    await Users.create({
+    await User.create({
       username: username,
       email: email,
       password: hashPassword,
@@ -171,7 +169,7 @@ export const updateModerator = async (req, res) => {
   if (!validator.equals(roles, 'moderator') && !validator.equals(roles, 'user')) return res.status(422).json({ msg: 'Roles harus harus sesuai' });
 
   try {
-    await Users.update(
+    await User.update(
       { roles },
       {
         where: {

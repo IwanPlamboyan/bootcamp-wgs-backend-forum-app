@@ -1,4 +1,4 @@
-import Users from '../models/UserModel.js';
+import User from '../models/UserModel.js';
 import jwt from 'jsonwebtoken';
 
 export const refreshToken = async (req, res) => {
@@ -6,7 +6,7 @@ export const refreshToken = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.sendStatus(401);
 
-    const user = await Users.findAll({
+    const user = await User.findAll({
       where: {
         refresh_token: refreshToken,
       },
@@ -18,9 +18,9 @@ export const refreshToken = async (req, res) => {
       const userId = user[0].id;
       const username = user[0].username;
       const email = user[0].email;
-      const foto_profile = user[0].foto_profile;
+      const image_url = user[0].image_url;
       const roles = user[0].roles;
-      const accessToken = jwt.sign({ userId, username, email, foto_profile, roles }, process.env.ACCESS_TOKEN_SECRET, {
+      const accessToken = jwt.sign({ userId, username, email, image_url, roles }, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '15s',
       });
       res.json({ accessToken });
