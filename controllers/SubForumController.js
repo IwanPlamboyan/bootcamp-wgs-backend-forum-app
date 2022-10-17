@@ -208,7 +208,9 @@ export const getAllSubForumByUserId = async (req, res) => {
 
 export const tambahSubForum = async (req, res) => {
   const { title, body, main_id, user_id } = req.body;
-  if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });
+  if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Judul harus diisi' });
+  if (validator.isEmpty(main_id)) return res.status(400).json({ msg: 'main_id harus diisi' });
+  if (validator.isEmpty(user_id)) return res.status(400).json({ msg: 'user_id harus diisi' });
 
   if (req.files !== null) {
     const file = req.files.image;
@@ -248,6 +250,7 @@ export const tambahSubForum = async (req, res) => {
   }
 };
 
+// belum kepake (opsional)
 export const updateSubForum = async (req, res) => {
   const { title, body, main_id } = req.body;
   if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });

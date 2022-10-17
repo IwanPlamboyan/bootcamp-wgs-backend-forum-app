@@ -51,6 +51,18 @@ export const getMainForum = async (req, res) => {
   });
 };
 
+export const getAllMainForum = async (req, res) => {
+  try {
+    const response = await MainForum.findAll({
+      attributes: ['id', 'title'],
+      order: [['id', 'DESC']],
+    });
+    res.json(response);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
 export const getMainForumById = async (req, res) => {
   try {
     const response = await MainForum.findOne({

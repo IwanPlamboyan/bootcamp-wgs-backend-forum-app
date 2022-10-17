@@ -72,6 +72,8 @@ export const getUserByUsername = async (req, res) => {
 export const editprofile = async (req, res) => {
   const { fullname, description } = req.body;
 
+  if (req.body.fullname === undefined) return res.status(400).json({ msg: 'Data harus diisi' });
+
   const user = await User.findOne({
     where: {
       id: req.params.id,
