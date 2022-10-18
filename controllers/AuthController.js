@@ -8,8 +8,11 @@ export const Register = async (req, res) => {
 
   if (validator.isEmpty(username) || validator.isEmpty(email) || validator.isEmpty(password) || validator.isEmpty(confirmPassword)) return res.status(400).json({ msg: 'semua field harus diisi' });
 
-  if (!validator.isEmail(email)) return res.status(400).json({ msg: 'Email tidak valid' });
+  const splitUsername = username.split(' ');
+  if (splitUsername[1] !== undefined) return res.status(400).json({ msg: 'Username tidak boleh ada spasi' });
 
+  if (!validator.isEmail(email)) return res.status(400).json({ msg: 'Email tidak valid' });
+  if (password.length < 6) return res.status(400).json({ msg: 'Password minimal harus 6 karakter' });
   if (password !== confirmPassword) return res.status(400).json({ msg: 'Password dan confirm Password tidak cocok' });
 
   try {
@@ -54,7 +57,7 @@ export const Login = async (req, res) => {
     });
 
     const match = await bcrypt.compare(req.body.password, user[0].password);
-    if (!match) return res.status(400).json({ msg: 'Wrong Password' });
+    if (!match) return res.status(400).json({ msg: 'Email atau Password salah' });
 
     const userId = user[0].id;
     const username = user[0].username;

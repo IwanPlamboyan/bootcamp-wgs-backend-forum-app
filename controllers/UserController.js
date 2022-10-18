@@ -99,7 +99,7 @@ export const editprofile = async (req, res) => {
     const fileSize = file.data.length;
     if (fileSize > 5000000) return res.status(422).json({ msg: 'Gambar harus kurang dari 5MB' });
 
-    if (user.image !== profileDefault) {
+    if (user.foto_profile !== profileDefault) {
       const filePath = `./public/img/foto_profile/${user.foto_profile}`;
       fs.unlinkSync(filePath);
     }
