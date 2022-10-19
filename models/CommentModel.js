@@ -4,8 +4,8 @@ import User from './UserModel.js';
 
 const { DataTypes } = Sequelize;
 
-const Discussion = db.define(
-  'discussion',
+const Comment = db.define(
+  'comments',
   {
     name: {
       type: DataTypes.STRING,
@@ -13,7 +13,7 @@ const Discussion = db.define(
     image: {
       type: DataTypes.STRING,
     },
-    sub_id: {
+    post_id: {
       type: DataTypes.INTEGER,
     },
     user_id: {
@@ -25,10 +25,10 @@ const Discussion = db.define(
   }
 );
 
-Discussion.belongsTo(User, { foreignKey: 'user_id' });
+Comment.belongsTo(User, { foreignKey: 'user_id' });
 
 // (async () => {
 //   await db.sync();
 // })();
 
-export default Discussion;
+export default Comment;

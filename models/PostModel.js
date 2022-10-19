@@ -4,8 +4,8 @@ import User from './UserModel.js';
 
 const { DataTypes } = Sequelize;
 
-const SubForum = db.define(
-  'sub_forum',
+const Post = db.define(
+  'posts',
   {
     title: {
       type: DataTypes.STRING,
@@ -28,7 +28,7 @@ const SubForum = db.define(
     image_url: {
       type: DataTypes.STRING,
     },
-    main_id: {
+    category_id: {
       type: DataTypes.INTEGER,
     },
     user_id: {
@@ -40,11 +40,11 @@ const SubForum = db.define(
   }
 );
 
-SubForum.belongsTo(User, { foreignKey: 'user_id' });
-User.hasMany(SubForum, { foreignKey: 'user_id' });
+Post.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(Post, { foreignKey: 'user_id' });
 
 // (async () => {
 //   await db.sync();
 // })();
 
-export default SubForum;
+export default Post;

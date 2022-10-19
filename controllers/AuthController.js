@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 
 export const Register = async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  const { username, email, password, confirmPassword, roles } = req.body;
 
   if (validator.isEmpty(username) || validator.isEmpty(email) || validator.isEmpty(password) || validator.isEmpty(confirmPassword)) return res.status(400).json({ msg: 'semua field harus diisi' });
 
@@ -14,6 +14,8 @@ export const Register = async (req, res) => {
   if (!validator.isEmail(email)) return res.status(400).json({ msg: 'Email tidak valid' });
   if (password.length < 6) return res.status(400).json({ msg: 'Password minimal harus 6 karakter' });
   if (password !== confirmPassword) return res.status(400).json({ msg: 'Password dan confirm Password tidak cocok' });
+
+  if (!validator.equals(roles, 'user') && !validator.equals(roles, 'moderator') && !validator.equals(roles, 'admin')) return res.status(400).json({ msg: 'Roles tidak sesuai' });
 
   try {
     const duplikatEmail = await User.findOne({
@@ -40,7 +42,7 @@ export const Register = async (req, res) => {
       password: hashPassword,
       foto_profile: 'profile-default.jpg',
       image_url: `${req.protocol}://${req.get('host')}/img/foto_profile/profile-default.jpg`,
-      roles: 'user',
+      roles: roles,
     });
     res.json({ msg: 'Register Berhasil' });
   } catch (error) {

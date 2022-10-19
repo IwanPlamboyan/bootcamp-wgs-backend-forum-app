@@ -28,7 +28,7 @@ export const isModerator = (req, res, next) => {
     req.email = decoded.email;
     req.roles = decoded.roles;
 
-    if (decoded.roles !== 'admin' || decoded.roles !== 'moderator') return res.status(404).json({ msg: 'ini hanya untuk moderator' });
+    if (decoded.roles === 'user') return res.status(404).json({ msg: 'hanya moderator dan admin yang bisa mengakses ini' });
 
     next();
   });

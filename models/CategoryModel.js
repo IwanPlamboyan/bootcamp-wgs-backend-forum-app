@@ -1,11 +1,11 @@
 import { Sequelize } from 'sequelize';
 import db from '../config/Database.js';
-import SubForum from './SubForumModel.js';
+import Post from './PostModel.js';
 
 const { DataTypes } = Sequelize;
 
-const MainForum = db.define(
-  'main_forum',
+const Category = db.define(
+  'categories',
   {
     title: {
       type: DataTypes.STRING,
@@ -20,11 +20,11 @@ const MainForum = db.define(
   }
 );
 
-SubForum.belongsTo(MainForum, { foreignKey: 'main_id' });
-MainForum.hasMany(SubForum, { foreignKey: 'main_id' });
+Post.belongsTo(Category, { foreignKey: 'category_id' });
+Category.hasMany(Post, { foreignKey: 'category_id' });
 
 // (async () => {
 //   await db.sync();
 // })();
 
-export default MainForum;
+export default Category;

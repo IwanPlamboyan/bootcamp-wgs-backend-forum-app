@@ -1,15 +1,15 @@
-import MainForum from '../models/MainForumModel.js';
+import Category from '../models/CategoryModel.js';
 import validator from 'validator';
 import { Op } from 'sequelize';
 
-export const getMainForum = async (req, res) => {
+export const getCategory = async (req, res) => {
   const last_id = parseInt(req.query.last_id) || 0;
   const limit = parseInt(req.query.limit) || 20;
   const search = req.query.search_query || '';
 
   let result = [];
   if (last_id < 1) {
-    const results = await MainForum.findAll({
+    const results = await Category.findAll({
       attributes: ['id', 'title', 'createdAt', 'updatedAt'],
       where: {
         [Op.or]: [
@@ -25,7 +25,7 @@ export const getMainForum = async (req, res) => {
     });
     result = results;
   } else {
-    const results = await MainForum.findAll({
+    const results = await Category.findAll({
       where: {
         id: {
           [Op.lt]: last_id,
@@ -51,9 +51,9 @@ export const getMainForum = async (req, res) => {
   });
 };
 
-export const getAllMainForum = async (req, res) => {
+export const getAllCategory = async (req, res) => {
   try {
-    const response = await MainForum.findAll({
+    const response = await Category.findAll({
       attributes: ['id', 'title'],
       order: [['id', 'DESC']],
     });
@@ -63,9 +63,9 @@ export const getAllMainForum = async (req, res) => {
   }
 };
 
-export const getMainForumById = async (req, res) => {
+export const getCategoryById = async (req, res) => {
   try {
-    const response = await MainForum.findOne({
+    const response = await Category.findOne({
       where: {
         id: req.params.id,
       },
@@ -76,60 +76,60 @@ export const getMainForumById = async (req, res) => {
   }
 };
 
-export const tambahMainForum = async (req, res) => {
-  const title = req.body.title.toLowerCase();
+export const tambahCategory = async (req, res) => {
+  const title = req.body.title;
   if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });
 
   try {
-    const duplikatTitleMainForum = await MainForum.findOne({
+    const duplikatTitleCategory = await Category.findOne({
       where: { title: title },
     });
 
-    if (duplikatTitleMainForum !== null) return res.status(422).json({ msg: 'Judul sudah ada' });
+    if (duplikatTitleCategory !== null) return res.status(422).json({ msg: 'Judul sudah ada' });
 
-    await MainForum.create({ title });
-    res.status(201).json({ msg: 'Main Forum berhasil dibuat' });
+    await Category.create({ title });
+    res.status(201).json({ msg: 'Category berhasil dibuat' });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-export const updateMainForum = async (req, res) => {
+export const updateCategory = async (req, res) => {
   const { oldTitle, newTitle } = req.body;
   if (validator.isEmpty(newTitle)) return res.status(204).json({ msg: 'Judul harus diisi' });
 
   try {
     if (oldTitle !== newTitle) {
-      const duplikatMainForum = await MainForum.findOne({
+      const duplikatCategory = await Category.findOne({
         where: { title: newTitle.toLowerCase() },
       });
 
-      if (duplikatMainForum !== null) return res.status(400).json({ msg: 'Judul sudah ada' });
+      if (duplikatCategory !== null) return res.status(400).json({ msg: 'Judul sudah ada' });
     }
 
-    await MainForum.create({ title });
-    res.status(201).json({ msg: 'Main forum berhasil diupdate' });
+    await Category.create({ title });
+    res.status(201).json({ msg: 'Category berhasil diupdate' });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-export const deleteMainForum = async (req, res) => {
-  const mainForum = await MainForum.findOne({
+export const deleteCategory = async (req, res) => {
+  const category = await Category.findOne({
     where: {
       id: req.params.id,
     },
   });
 
-  if (!mainForum) return res.status(404).json({ msg: 'Data tidak ditemukan' });
+  if (!category) return res.status(404).json({ msg: 'Data tidak ditemukan' });
 
   try {
-    await MainForum.destroy({
+    await Category.destroy({
       where: {
         id: req.params.id,
       },
     });
-    res.status(200).json({ msg: 'Main Forum berhasil dihapus' });
+    res.status(200).json({ msg: 'Category berhasil dihapus' });
   } catch (error) {
     console.log(error.message);
   }

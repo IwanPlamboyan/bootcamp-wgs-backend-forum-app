@@ -1,18 +1,20 @@
 # bootcamp-wgs-backend-forum-app
+
 backend forum-app dengan menggunakan express
 
 # BACKEND FORUM APP
 
-Aplikasi backend Forum Sederhana ini merupakan backend dari aplikasi forum yang terdiri dari login, register, dengan jwt, mengolah user, main forum, sub forum, dan diskusi.
+Aplikasi backend Forum Sederhana ini merupakan backend dari aplikasi forum yang terdiri dari login, register, dengan jwt, mengolah user, category, postingan, dan Comment/diskusi.
 
 ## Features
 
 - Login, Register, getToken(merefresh token) dan logout
 - Mengelola data user seperti getAllUser, getUserById, editProfileUserById, CreateModerator(user baru dengan roles moderator) dan updateModerator(mengubah roles dari user ke moderator atau sebaliknya)
-- Mengelola Main Forum seperti getAllForum(menampilkan semua forum), getAllMainForum, getMainForumById, createMainForum, updateMainForum dan deleteMainForum
-- Mengelola Sub Forum seperti getAllSubForum, getSubForumById, createSubForum, updateSubForum dan deleteSubForum
-- mengelola diskusi seperti getDiscussionBySubForum, createDiscussion dan deleteDiscussion
-- 
+- Mengelola Category seperti getAllCategory, getCategoryById, createCategory, updateCategory dan deleteCategory
+- Mengelola Postingan seperti getAllPost, getPostById, createPost, updatePost dan deletePost
+- mengelola Comment/diskusi seperti getCommentByPost, createComment dan deleteComment
+-
+
 ## Tech
 
 Aplikasi backend Forum ini dibuat dengan:
@@ -22,11 +24,13 @@ Aplikasi backend Forum ini dibuat dengan:
 - [sequelize] - untuk mempermudak query sebagai orm
 - [bcrypt] - untuk mengenkripsi password
 - [jsonwebtoken] - untuk authentication
+- [cors] - untuk membatasi permintaan HTTP
 - [express-fileupload] - untuk mengupload file ke server
 - [validator] - untuk validasi
 - [cookie-parser] - untuk menyimpan cookie
 - [node.js] - sebagai server backend
 - [dotenv] - untuk menyimpan variabel
+- [validator] - untuk memvalidasi
 
 ## Installation
 
@@ -40,6 +44,7 @@ npm i
 ```
 
 Jalankan servernya menggunakan perintah berikut.
+
 ```sh
 nodemon index.js
 atau
@@ -49,116 +54,133 @@ node index.js
 ## Usage
 
 **Register**
+
 ```sh
 POST    http://localhost:5000/register
 ```
 
 **Login**
+
 ```sh
 POST    http://localhost:5000/login
 ```
 
 **Merefresh token**
+
 ```sh
 GET     http://localhost:5000/token
 ```
 
 **Logout**
+
 ```sh
 DELETE  http://localhost:5000/logout
 ```
 
 **Menampilkan semua user**
+
 ```sh
 GET     http://localhost:5000/users
 ```
 
 **Menampilkan user berdasarkan id**
+
 ```sh
 GET     http://localhost:5000/users/:id
 ```
 
 **Mengubah profile**
+
 ```sh
 PATCH   http://localhost:5000/users/:id
 ```
 
 **Membuat Moderator dengan user yang baru**
+
 ```sh
 POST   http://localhost:5000/users/moderator
 ```
 
 **Mengubah roles dari mederator ke user atau sebaliknya**
+
 ```sh
 PATCH   http://localhost:5000/users/moderator/:id
 ```
 
-**Menampilkan semua Mainforum dan SubForum**
+**Menampilkan semua Category**
+
 ```sh
-GET   http://localhost:5000/forum/
+GET   http://localhost:5000/forum/category
 ```
 
-**Menampilkan semua Mainforum**
+**Menampilkan semua Category berdasarkan id**
+
 ```sh
-GET   http://localhost:5000/forum/main
+GET   http://localhost:5000/forum/category/:id
 ```
 
-**Menampilkan semua Mainforum berdasarkan id**
+**Menambah Category**
+
 ```sh
-GET   http://localhost:5000/forum/main/:id
+POST   http://localhost:5000/forum/category
 ```
 
-**Menambah Main Forum**
+**Mengubah Category**
+
 ```sh
-POST   http://localhost:5000/forum/main
+PATCH   http://localhost:5000/forum/category/:id
 ```
 
-**Mengubah Main Forum**
+**Menghapus Category**
+
 ```sh
-PATCH   http://localhost:5000/forum/main/:id
+DELETE   http://localhost:5000/forum/category/:id
 ```
 
-**Menghapus Main Forum**
+**Menampilkan semua Postingan**
+
 ```sh
-DELETE   http://localhost:5000/forum/main/:id
+GET   http://localhost:5000/forum/post
 ```
 
-**Menampilkan semua Sub Forum**
+**Menampilkan Postingan berdasarkan id**
+
 ```sh
-GET   http://localhost:5000/forum/sub
+GET   http://localhost:5000/forum/post/id
 ```
 
-**Menampilkan Sub Forum berdasarkan id**
+**Menambah Postingan**
+
 ```sh
-GET   http://localhost:5000/forum/sub/id
+POST   http://localhost:5000/forum/post
 ```
 
-**Menambah Sub Forum**
+**Mengubah Postingan berdasarkan id**
+
 ```sh
-POST   http://localhost:5000/forum/sub
+PATCH   http://localhost:5000/forum/post/:id
 ```
 
-**Mengubah Sub Forum berdasarkan id**
+**Menghapus Postingan berdasarkan id**
+
 ```sh
-PATCH   http://localhost:5000/forum/sub/:id
+DELETE   http://localhost:5000/forum/post/:id
 ```
 
-**Menghapus Sub Forum berdasarkan id**
+**Menampilkan semua Comment/diskusi berdasarkan id dari Postingan**
+
 ```sh
-DELETE   http://localhost:5000/forum/sub/:id
+GET   http://localhost:5000/forum/comment?post_id=id
 ```
 
-**Menampilkan semua Diskusi berdasarkan id dari sub forum**
-```sh
-GET   http://localhost:5000/forum/discussion?sub_id=id
-```
+**Menambah Comment/diskusi**
 
-**Menambah diskusi**
 ```sh
-POST   http://localhost:5000/forum/discussion
+POST   http://localhost:5000/forum/comment
 ```
 
 **Menghapus diskusi berdasarkan id**
+
 ```sh
-POST   http://localhost:5000/forum/discussion/:id
+POST   http://localhost:5000/forum/comment/:id
 ```

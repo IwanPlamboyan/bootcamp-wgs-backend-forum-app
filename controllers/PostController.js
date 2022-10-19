@@ -1,19 +1,19 @@
-import SubForum from '../models/SubForumModel.js';
+import Post from '../models/PostModel.js';
 import User from '../models/UserModel.js';
-import MainForum from '../models/MainForumModel.js';
+import Category from '../models/CategoryModel.js';
 import validator from 'validator';
 import { Op } from 'sequelize';
 import path from 'path';
 import fs from 'fs';
 
-export const getSubForum = async (req, res) => {
+export const getPost = async (req, res) => {
   const last_id = parseInt(req.query.last_id) || 0;
   const limit = parseInt(req.query.limit) || 20;
   const search = req.query.search_query || '';
 
   let result = [];
   if (last_id < 1) {
-    const results = await SubForum.findAll({
+    const results = await Post.findAll({
       attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
       where: {
         [Op.or]: [
@@ -35,7 +35,7 @@ export const getSubForum = async (req, res) => {
           attributes: ['username', 'foto_profile', 'image_url'],
         },
         {
-          model: MainForum,
+          model: Category,
           attributes: ['id', 'title'],
         },
       ],
@@ -44,7 +44,7 @@ export const getSubForum = async (req, res) => {
     });
     result = results;
   } else {
-    const results = await SubForum.findAll({
+    const results = await Post.findAll({
       where: {
         id: {
           [Op.lt]: last_id,
@@ -68,7 +68,7 @@ export const getSubForum = async (req, res) => {
           attributes: ['username', 'foto_profile', 'image_url'],
         },
         {
-          model: MainForum,
+          model: Category,
           attributes: ['id', 'title'],
         },
       ],
@@ -85,9 +85,9 @@ export const getSubForum = async (req, res) => {
   });
 };
 
-export const getSubForumById = async (req, res) => {
+export const getPostById = async (req, res) => {
   try {
-    const response = await SubForum.findOne({
+    const response = await Post.findOne({
       where: {
         id: req.params.id,
       },
@@ -99,16 +99,16 @@ export const getSubForumById = async (req, res) => {
   }
 };
 
-export const getAllSubForumByMainId = async (req, res) => {
+export const getAllPostByCategoryId = async (req, res) => {
   const last_id = parseInt(req.query.last_id) || 0;
   const limit = parseInt(req.query.limit) || 20;
 
   let result = [];
   if (last_id < 1) {
-    const results = await SubForum.findAll({
+    const results = await Post.findAll({
       attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
       where: {
-        main_id: req.params.id,
+        category_id: req.params.id,
       },
       include: [
         {
@@ -116,7 +116,7 @@ export const getAllSubForumByMainId = async (req, res) => {
           attributes: ['username', 'foto_profile', 'image_url'],
         },
         {
-          model: MainForum,
+          model: Category,
           attributes: ['id', 'title'],
         },
       ],
@@ -125,10 +125,10 @@ export const getAllSubForumByMainId = async (req, res) => {
     });
     result = results;
   } else {
-    const results = await SubForum.findAll({
+    const results = await Post.findAll({
       attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
       where: {
-        main_id: req.params.id,
+        category_id: req.params.id,
       },
       include: [
         {
@@ -136,7 +136,7 @@ export const getAllSubForumByMainId = async (req, res) => {
           attributes: ['username', 'foto_profile', 'image_url'],
         },
         {
-          model: MainForum,
+          model: Category,
           attributes: ['id', 'title'],
         },
       ],
@@ -153,13 +153,13 @@ export const getAllSubForumByMainId = async (req, res) => {
   });
 };
 
-export const getAllSubForumByUserId = async (req, res) => {
+export const getAllPostByUserId = async (req, res) => {
   const last_id = parseInt(req.query.last_id) || 0;
   const limit = parseInt(req.query.limit) || 20;
 
   let result = [];
   if (last_id < 1) {
-    const results = await SubForum.findAll({
+    const results = await Post.findAll({
       attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
       where: {
         user_id: req.params.user_id,
@@ -170,7 +170,7 @@ export const getAllSubForumByUserId = async (req, res) => {
           attributes: ['username', 'foto_profile', 'image_url'],
         },
         {
-          model: MainForum,
+          model: Category,
           attributes: ['id', 'title'],
         },
       ],
@@ -179,7 +179,7 @@ export const getAllSubForumByUserId = async (req, res) => {
     });
     result = results;
   } else {
-    const results = await SubForum.findAll({
+    const results = await Post.findAll({
       where: {
         user_id: req.params.user_id,
       },
@@ -189,7 +189,7 @@ export const getAllSubForumByUserId = async (req, res) => {
           attributes: ['username', 'foto_profile', 'image_url'],
         },
         {
-          model: MainForum,
+          model: Category,
           attributes: ['id', 'title'],
         },
       ],
@@ -206,17 +206,18 @@ export const getAllSubForumByUserId = async (req, res) => {
   });
 };
 
-export const tambahSubForum = async (req, res) => {
-  const { title, body, main_id, user_id } = req.body;
+export const tambahPost = async (req, res) => {
+  const { title, body, category_id, user_id } = req.body;
   if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Judul harus diisi' });
-  if (validator.isEmpty(main_id)) return res.status(400).json({ msg: 'main_id harus diisi' });
+  if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'category_id harus diisi' });
   if (validator.isEmpty(user_id)) return res.status(400).json({ msg: 'user_id harus diisi' });
+  if (validator.isEmpty(body)) return res.status(400).json({ msg: 'Deskripsi harus diisi' });
 
   if (req.files !== null) {
     const file = req.files.image;
     const ext = path.extname(file.name);
     const imageName = file.md5 + new Date().toLocaleTimeString() + ext;
-    const imageURL = `${req.protocol}://${req.get('host')}/img/sub_forum/${imageName}`;
+    const imageURL = `${req.protocol}://${req.get('host')}/img/posts/${imageName}`;
     const allowedType = ['.png', '.jpg', 'jpeg'];
 
     if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: 'Gambar tidak valid' });
@@ -224,26 +225,26 @@ export const tambahSubForum = async (req, res) => {
     const fileSize = file.data.length;
     if (fileSize > 5000000) return res.status(422).json({ msg: 'Gambar harus kurang dari 5 MB' });
 
-    file.mv(`./public/img/sub_forum/${imageName}`, async (err) => {
+    file.mv(`./public/img/posts/${imageName}`, async (err) => {
       if (err) return res.status(500).json({ msg: err.message });
       try {
-        await SubForum.create({
+        await Post.create({
           title: title,
           body: body,
           image_name: imageName,
           image_url: imageURL,
-          main_id: main_id,
+          category_id: category_id,
           user_id: user_id,
         });
-        res.status(201).json({ msg: 'Sub Forum berhasil ditambahkan' });
+        res.status(201).json({ msg: 'Post berhasil ditambahkan' });
       } catch (error) {
         console.log(error.message);
       }
     });
   } else {
     try {
-      await SubForum.create({ title, body, main_id, user_id });
-      res.status(201).json({ msg: 'Sub Forum berhasil ditambahkan' });
+      await Post.create({ title, body, category_id, user_id });
+      res.status(201).json({ msg: 'Post berhasil ditambahkan' });
     } catch (error) {
       console.log(error);
     }
@@ -251,28 +252,28 @@ export const tambahSubForum = async (req, res) => {
 };
 
 // belum kepake (opsional)
-export const updateSubForum = async (req, res) => {
-  const { title, body, main_id } = req.body;
+export const updatePost = async (req, res) => {
+  const { title, body, category_id } = req.body;
   if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });
-  if (validator.isEmpty(body)) return res.status(204).json({ msg: 'Sub Forum harus diisi' });
+  if (validator.isEmpty(body)) return res.status(204).json({ msg: 'Deskripsi harus diisi' });
 
-  const subForum = await SubForum.findOne({
+  const post = await Post.findOne({
     where: {
       id: req.params.id,
     },
   });
-  if (!subForum) return res.status(404).json({ msg: 'No Data Found' });
+  if (!post) return res.status(404).json({ msg: 'No Data Found' });
 
   let imageName = '';
   let imageURL = '';
 
   if (req.files === null) {
-    imageName = subForum.image_name;
+    imageName = post.image_name;
   } else {
     const file = req.files.image;
     const ext = path.extname(file.name);
     imageName = file.md5 + new Date().toLocaleTimeString() + ext;
-    imageURL = `${req.protocol}://${req.get('host')}/img/sub_forum/${imageName}`;
+    imageURL = `${req.protocol}://${req.get('host')}/img/posts/${imageName}`;
     const allowedType = ['.png', '.jpg', '.jpeg'];
 
     if (!allowedType.includes(ext.toLocaleLowerCase())) return res.status(422).json({ msg: 'Invalid Image' });
@@ -280,24 +281,24 @@ export const updateSubForum = async (req, res) => {
     const fileSize = file.data.length;
     if (fileSize > 5000000) return res.status(422).json({ msg: 'Image must be less than 5 MB' });
 
-    const filePath = `./public/img/sub_forum/${subForum.image_name}`;
+    const filePath = `./public/img/posts/${post.image_name}`;
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
 
-    file.mv(`./public/img/sub_forum/${imageName}`, (err) => {
+    file.mv(`./public/img/posts/${imageName}`, (err) => {
       if (err) return res.status(500).json({ msg: err.message });
     });
   }
 
   try {
-    await SubForum.update(
+    await Post.update(
       {
         title: title,
         body: body,
         image_name: imageName,
         image_url: imageURL,
-        main_id: main_id,
+        category_id: category_id,
       },
       {
         where: {
@@ -305,33 +306,33 @@ export const updateSubForum = async (req, res) => {
         },
       }
     );
-    res.status(200).json({ msg: 'Sub Forum berhasil diUbah' });
+    res.status(200).json({ msg: 'Post berhasil diUbah' });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-export const deleteSubForum = async (req, res) => {
+export const deletePost = async (req, res) => {
   const { id } = req.params;
-  const subForum = await SubForum.findOne({
+  const post = await Post.findOne({
     where: {
       id: id,
     },
   });
 
-  if (!subForum) return res.status(404).json({ msg: 'Sub Forum tidak ditemukan' });
+  if (!post) return res.status(404).json({ msg: 'Post tidak ditemukan' });
   try {
-    if (subForum.image_name !== null) {
-      const filePath = `./public/img/sub_forum/${subForum.image_name}`;
+    if (post.image_name !== null) {
+      const filePath = `./public/img/post/${post.image_name}`;
       fs.unlinkSync(filePath);
     }
 
-    await SubForum.destroy({
+    await Post.destroy({
       where: {
         id: id,
       },
     });
-    res.status(200).json({ msg: 'Sub Forum berhasil dihapus' });
+    res.status(200).json({ msg: 'Post berhasil dihapus' });
   } catch (error) {
     console.log(error.message);
   }

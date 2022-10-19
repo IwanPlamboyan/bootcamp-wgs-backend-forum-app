@@ -44,7 +44,7 @@ const User = db.define(
       type: DataTypes.STRING,
     },
     roles: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('user', 'moderator', 'admin'),
       allowNull: false,
     },
     refresh_token: {
