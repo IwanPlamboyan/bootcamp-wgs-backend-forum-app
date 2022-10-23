@@ -7,8 +7,9 @@ import fs from 'fs';
 export const getUsers = async (req, res) => {
   const page = parseInt(req.query.page) || 0;
   const limit = parseInt(req.query.limit) || 20;
-  const search = req.query.page || '';
+  const search = req.query.search_query || '';
   const offset = limit * page;
+
   const totalRows = await User.count({
     where: {
       [Op.or]: [
@@ -41,9 +42,10 @@ export const getUsers = async (req, res) => {
         },
       ],
     },
-    attributes: ['id', 'username', 'fullname', 'email', 'roles', 'createdAt', 'updatedAt'],
+    attributes: ['id', 'username', 'fullname', 'email', 'image_url', 'roles', 'createdAt', 'updatedAt'],
     offset: offset,
     limit: limit,
+    order: [['id', 'DESC']],
   });
 
   res.json({
@@ -61,7 +63,7 @@ export const getUserByUsername = async (req, res) => {
       where: {
         username: req.params.username,
       },
-      attributes: ['id', 'username', 'fullname', 'email', 'foto_profile', 'image_url', 'description'],
+      attributes: ['id', 'username', 'fullname', 'email', 'foto_profile', 'image_url', 'description', 'roles'],
     });
     res.json(response);
   } catch (error) {
@@ -73,6 +75,8 @@ export const editprofile = async (req, res) => {
   const { fullname, description } = req.body;
 
   if (req.body.fullname === undefined) return res.status(400).json({ msg: 'Data harus diisi' });
+  if (fullname.length >= 100) return res.status(400).json({ msg: 'Fullname terlalu banyak!' });
+  if (description.length >= 255) return res.status(400).json({ msg: 'Deskripsi terlalu banyak!' });
 
   const user = await User.findOne({
     where: {

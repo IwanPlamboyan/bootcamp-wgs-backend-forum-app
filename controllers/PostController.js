@@ -5,6 +5,7 @@ import validator from 'validator';
 import { Op } from 'sequelize';
 import path from 'path';
 import fs from 'fs';
+import Comment from '../models/CommentModel.js';
 
 export const getPost = async (req, res) => {
   const last_id = parseInt(req.query.last_id) || 0;
@@ -208,10 +209,13 @@ export const getAllPostByUserId = async (req, res) => {
 
 export const tambahPost = async (req, res) => {
   const { title, body, category_id, user_id } = req.body;
-  if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Judul harus diisi' });
-  if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'category_id harus diisi' });
-  if (validator.isEmpty(user_id)) return res.status(400).json({ msg: 'user_id harus diisi' });
-  if (validator.isEmpty(body)) return res.status(400).json({ msg: 'Deskripsi harus diisi' });
+  console.log(req.body);
+  if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Judul harus diisi!' });
+  if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'category_id harus diisi!' });
+  if (validator.isEmpty(user_id)) return res.status(400).json({ msg: 'user_id harus diisi!' });
+  if (validator.isEmpty(body)) return res.status(400).json({ msg: 'Deskripsi harus diisi!' });
+  if (title.length >= 255) return res.status(400).json({ msg: 'Judul terlalu banyak!' });
+  if (body.length >= 20000) return res.status(400).json({ msg: 'Teks deskripsi terlalu banyak!' });
 
   if (req.files !== null) {
     const file = req.files.image;
@@ -262,7 +266,7 @@ export const updatePost = async (req, res) => {
       id: req.params.id,
     },
   });
-  if (!post) return res.status(404).json({ msg: 'No Data Found' });
+  if (!post) return res.status(404).json({ msg: 'Data tidak ditemukan!' });
 
   let imageName = '';
   let imageURL = '';
@@ -314,22 +318,35 @@ export const updatePost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   const { id } = req.params;
+
   const post = await Post.findOne({
     where: {
       id: id,
     },
+    attributes: ['id', 'image_name', 'user_id'],
+    include: {
+      model: User,
+      attributes: ['username'],
+    },
   });
 
   if (!post) return res.status(404).json({ msg: 'Post tidak ditemukan' });
+
+  const role = req.roles;
+  if (role === 'user' && post.user.username !== req.username) return res.status(400).json({ msg: 'Kamu tidak berhak menghapus postingan orang lain' });
+
   try {
     if (post.image_name !== null) {
-      const filePath = `./public/img/post/${post.image_name}`;
+      const filePath = `./public/img/posts/${post.image_name}`;
       fs.unlinkSync(filePath);
     }
 
     await Post.destroy({
       where: {
         id: id,
+      },
+      include: {
+        model: Comment,
       },
     });
     res.status(200).json({ msg: 'Post berhasil dihapus' });

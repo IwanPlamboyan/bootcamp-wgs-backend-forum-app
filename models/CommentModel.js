@@ -8,10 +8,7 @@ const Comment = db.define(
   'comments',
   {
     name: {
-      type: DataTypes.STRING,
-    },
-    image: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(1234),
     },
     post_id: {
       type: DataTypes.INTEGER,

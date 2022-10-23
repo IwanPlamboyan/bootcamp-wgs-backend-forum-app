@@ -1,6 +1,7 @@
 import Category from '../models/CategoryModel.js';
 import validator from 'validator';
 import { Op } from 'sequelize';
+import Post from '../models/PostModel.js';
 
 export const getCategory = async (req, res) => {
   const last_id = parseInt(req.query.last_id) || 0;
@@ -77,16 +78,18 @@ export const getCategoryById = async (req, res) => {
 };
 
 export const tambahCategory = async (req, res) => {
-  const title = req.body.title;
+  const { title } = req.body;
+  console.log(req.body);
+  console.log(title);
   if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });
 
+  const duplikatTitleCategory = await Category.findOne({
+    where: { title: title },
+  });
+
+  if (duplikatTitleCategory !== null) return res.status(422).json({ msg: 'Judul sudah ada' });
+
   try {
-    const duplikatTitleCategory = await Category.findOne({
-      where: { title: title },
-    });
-
-    if (duplikatTitleCategory !== null) return res.status(422).json({ msg: 'Judul sudah ada' });
-
     await Category.create({ title });
     res.status(201).json({ msg: 'Category berhasil dibuat' });
   } catch (error) {
@@ -95,19 +98,26 @@ export const tambahCategory = async (req, res) => {
 };
 
 export const updateCategory = async (req, res) => {
-  const { oldTitle, newTitle } = req.body;
-  if (validator.isEmpty(newTitle)) return res.status(204).json({ msg: 'Judul harus diisi' });
+  const { id, title } = req.body;
+  if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi!' });
+
+  const category = await Category.findOne({
+    where: { id: id },
+  });
+  if (!category) return res.status(404).json({ msg: 'Data tidak ditemukan!' });
+
+  const duplikatTitleCategory = await Category.findOne({
+    where: { title: title },
+  });
+  if (duplikatTitleCategory) return res.status(400).json({ msg: 'Judul sudah ada!' });
 
   try {
-    if (oldTitle !== newTitle) {
-      const duplikatCategory = await Category.findOne({
-        where: { title: newTitle.toLowerCase() },
-      });
-
-      if (duplikatCategory !== null) return res.status(400).json({ msg: 'Judul sudah ada' });
-    }
-
-    await Category.create({ title });
+    await Category.update(
+      { title },
+      {
+        where: { id: id },
+      }
+    );
     res.status(201).json({ msg: 'Category berhasil diupdate' });
   } catch (error) {
     console.log(error.message);
@@ -119,9 +129,15 @@ export const deleteCategory = async (req, res) => {
     where: {
       id: req.params.id,
     },
+    attributes: ['id'],
+    include: {
+      model: Post,
+      attributes: ['category_id'],
+    },
   });
 
   if (!category) return res.status(404).json({ msg: 'Data tidak ditemukan' });
+  if (category.posts.length > 0) return res.status(400).json({ msg: 'Data tidak bisa dihapus dikarenakan ada postingan user!' });
 
   try {
     await Category.destroy({

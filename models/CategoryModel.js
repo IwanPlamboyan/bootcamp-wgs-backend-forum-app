@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import db from '../config/Database.js';
-import Post from './PostModel.js';
 
 const { DataTypes } = Sequelize;
 
@@ -19,9 +18,6 @@ const Category = db.define(
     freezeTableName: true,
   }
 );
-
-Post.belongsTo(Category, { foreignKey: 'category_id' });
-Category.hasMany(Post, { foreignKey: 'category_id' });
 
 // (async () => {
 //   await db.sync();

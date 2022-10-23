@@ -1,11 +1,9 @@
 import Comment from '../models/CommentModel.js';
 import { Op } from 'sequelize';
 import validator from 'validator';
-import path from 'path';
-import fs from 'fs';
 import User from '../models/UserModel.js';
 
-export const getCommentByPost = async (req, res) => {
+export const getCommentsByPostId = async (req, res) => {
   const postId = req.query.post_id;
   if (postId === '' || typeof postId == 'undefined' || !validator.isInt(postId)) return res.status(422).json({ msg: 'post_id harus di isi dengan angka' });
   const last_id = parseInt(req.query.last_id) || 0;
@@ -20,7 +18,7 @@ export const getCommentByPost = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['username'],
+          attributes: ['username', 'image_url'],
         },
       ],
       limit: limit,
@@ -42,7 +40,7 @@ export const getCommentByPost = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['username'],
+          attributes: ['username', 'image_url'],
         },
       ],
       limit: limit,
@@ -59,36 +57,17 @@ export const getCommentByPost = async (req, res) => {
 };
 
 export const tambahComment = async (req, res) => {
-  const { name, sub_id } = req.body;
+  const { name, post_id, user_id } = req.body;
   if (validator.isEmpty(name)) return res.status(400).json({ msg: 'field harus di isi' });
+  if (post_id === undefined || post_id === false) return res.status(400).json({ msg: 'post_id harus di isi' });
+  if (user_id === undefined || user_id === false) return res.status(400).json({ msg: 'user_id harus di isi' });
+  if (name.length >= 1234) return res.status(400).json({ msg: 'Comment terlalu banyak!' });
 
-  if (!req.files === null) {
-    const file = req.files.file;
-    const ext = path.extname(file.name);
-    const fileName = file.md5 + ext;
-    const allowedType = ['.png', '.jpg', 'jpeg'];
-
-    if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: 'Gambar tidak valid' });
-
-    const fileSize = file.data.length;
-    if (fileSize > 5000000) return res.status(422).json({ msg: 'Gambar harus kurang dari 5 MB' });
-
-    file.mv(`./public/img/comments/${fileName}`, async (err) => {
-      if (err) return res.status(500).json({ msg: err.message });
-      try {
-        await Comment.create({ name: name, image: fileName, sub_id: sub_id });
-        res.status(201).json({ msg: 'Diskusi berhasil ditambahkan' });
-      } catch (error) {
-        console.log(error.message);
-      }
-    });
-  } else {
-    try {
-      await Comment.create({ name, sub_id });
-      res.status(201).json({ msg: 'Diskusi berhasil ditambahkan' });
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    await Comment.create({ name: name, post_id: post_id, user_id: user_id });
+    res.status(201).json({ msg: 'Diskusi berhasil ditambahkan' });
+  } catch (error) {
+    console.log(error.message);
   }
 };
 
@@ -108,14 +87,9 @@ export const deleteComment = async (req, res) => {
 
   if (!comment) return res.status(404).json({ msg: 'Diskusi tidak ditemukan' });
 
-  if (req.roles === 'user' && req.email !== comment.user.email) res.status(422).json({ msg: 'Diskusi ini tidak bisa dihapus oleh user lain' });
+  if (req.roles === 'user' && req.email !== comment.user.email) res.status(422).json({ msg: 'Kamu tidak berhak menghapus komentar user lain' });
 
   try {
-    if (!comment.image === null) {
-      const filePath = `./public/img/comments/${comment.image}`;
-      fs.unlinkSync(filePath);
-    }
-
     await Comment.destroy({
       where: {
         id: id,

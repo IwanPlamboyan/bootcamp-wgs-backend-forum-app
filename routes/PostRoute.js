@@ -3,7 +3,7 @@ import { getPost, getPostById, getAllPostByUserId, tambahPost, updatePost, delet
 import { publicAll } from '../middleware/RoleMiddleware.js';
 
 const router = express.Router();
-router.get('/category/:id', getAllPostByCategoryId);
+router.get('/post/category/:id', getAllPostByCategoryId);
 router.get('/post', getPost); //route ini public dan memanggil fungsi dari controller PostController untuk menampilkan postingan
 router.get('/post/:id', getPostById); //route ini tidak bisa diakses oleh user biasa dan memanggil fungsi dari controller PostController untuk menampilkan postingan berdasarkan id
 router.get('/post/user/:user_id', getAllPostByUserId);
