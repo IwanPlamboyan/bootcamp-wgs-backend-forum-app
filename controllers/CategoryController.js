@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import Post from '../models/PostModel.js';
 
 export const getCategory = async (req, res) => {
-  const last_id = parseInt(req.query.last_id) || 0;
+  const last_id = parseInt(req.query.lastId) || 0;
   const limit = parseInt(req.query.limit) || 20;
   const search = req.query.search_query || '';
 
@@ -47,7 +47,7 @@ export const getCategory = async (req, res) => {
 
   res.json({
     result: result,
-    last_id: result.length ? result[result.length - 1].id : 0,
+    lastId: result.length ? result[result.length - 1].id : 0,
     hasMore: result.length >= limit ? true : false,
   });
 };
@@ -79,9 +79,8 @@ export const getCategoryById = async (req, res) => {
 
 export const tambahCategory = async (req, res) => {
   const { title } = req.body;
-  console.log(req.body);
-  console.log(title);
-  if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });
+  if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Nama Category harus diisi' });
+  if (title.length > 50) return res.status(400).json({ msg: 'Nama Category terlalu panjang' });
 
   const duplikatTitleCategory = await Category.findOne({
     where: { title: title },

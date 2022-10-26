@@ -1,58 +1,41 @@
 import Comment from '../models/CommentModel.js';
-import { Op } from 'sequelize';
 import validator from 'validator';
 import User from '../models/UserModel.js';
 
 export const getCommentsByPostId = async (req, res) => {
   const postId = req.query.post_id;
   if (postId === '' || typeof postId == 'undefined' || !validator.isInt(postId)) return res.status(422).json({ msg: 'post_id harus di isi dengan angka' });
-  const last_id = parseInt(req.query.last_id) || 0;
+  const page = parseInt(req.query.page) || 0;
   const limit = parseInt(req.query.limit) || 20;
+  const offset = limit * page;
 
-  let result = [];
-  if (last_id < 1) {
-    const results = await Comment.findAll({
-      where: {
-        post_id: parseInt(postId),
+  const totalRows = await Comment.count({
+    where: {
+      post_id: parseInt(postId),
+    },
+  });
+  const totalPage = Math.ceil(totalRows / limit);
+  const result = await Comment.findAll({
+    where: {
+      post_id: parseInt(postId),
+    },
+    include: [
+      {
+        model: User,
+        attributes: ['username', 'image_url'],
       },
-      include: [
-        {
-          model: User,
-          attributes: ['username', 'image_url'],
-        },
-      ],
-      limit: limit,
-      order: [['id', 'DESC']],
-    });
-    result = results;
-  } else {
-    const results = await Comment.findAll({
-      where: {
-        post_id: parseInt(postId),
-        [Op.and]: [
-          {
-            id: {
-              [Op.lt]: last_id,
-            },
-          },
-        ],
-      },
-      include: [
-        {
-          model: User,
-          attributes: ['username', 'image_url'],
-        },
-      ],
-      limit: limit,
-      order: [['id', 'DESC']],
-    });
-    result = results;
-  }
+    ],
+    offset: offset,
+    limit: limit,
+    order: [['id', 'DESC']],
+  });
 
   res.json({
     result: result,
-    last_id: result.length ? result[result.length - 1].id : 0,
-    hasMore: result.length >= limit ? true : false,
+    page: page,
+    limit: limit,
+    totalRows: totalRows,
+    totalPage: totalPage,
   });
 };
 

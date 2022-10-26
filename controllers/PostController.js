@@ -8,7 +8,7 @@ import fs from 'fs';
 import Comment from '../models/CommentModel.js';
 
 export const getPost = async (req, res) => {
-  const last_id = parseInt(req.query.last_id) || 0;
+  const last_id = parseInt(req.query.lastId) || 0;
   const limit = parseInt(req.query.limit) || 20;
   const search = req.query.search_query || '';
 
@@ -81,7 +81,7 @@ export const getPost = async (req, res) => {
 
   res.json({
     result: result,
-    last_id: result.length ? result[result.length - 1].id : 0,
+    lastId: result.length ? result[result.length - 1].id : 0,
     hasMore: result.length >= limit ? true : false,
   });
 };
@@ -101,7 +101,7 @@ export const getPostById = async (req, res) => {
 };
 
 export const getAllPostByCategoryId = async (req, res) => {
-  const last_id = parseInt(req.query.last_id) || 0;
+  const last_id = parseInt(req.query.lastId) || 0;
   const limit = parseInt(req.query.limit) || 20;
 
   let result = [];
@@ -209,7 +209,6 @@ export const getAllPostByUserId = async (req, res) => {
 
 export const tambahPost = async (req, res) => {
   const { title, body, category_id, user_id } = req.body;
-  console.log(req.body);
   if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Judul harus diisi!' });
   if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'category_id harus diisi!' });
   if (validator.isEmpty(user_id)) return res.status(400).json({ msg: 'user_id harus diisi!' });
