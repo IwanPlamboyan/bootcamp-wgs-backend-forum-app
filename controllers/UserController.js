@@ -1,4 +1,5 @@
 import validator from 'validator';
+import bcrypt from 'bcrypt';
 import User from '../models/UserModel.js';
 import { Op } from 'sequelize';
 import path from 'path';
@@ -186,5 +187,42 @@ export const updateModerator = async (req, res) => {
     res.status(200).json({ msg: 'Roles moderator berhasil di ubah' });
   } catch (error) {
     console.log(error.message);
+  }
+};
+
+export const changePassword = async (req, res) => {
+  const { currentPassword, newPassword, repeatPassword } = req.body;
+
+  if (validator.isEmpty(currentPassword) || validator.isEmpty(newPassword) || validator.isEmpty(repeatPassword)) return res.status(400).json({ msg: 'semua field harus diisi' });
+  if (newPassword.length < 6) return res.status(400).json({ msg: 'Password sekarang minimal harus 6 karakter!' });
+
+  const user = await User.findOne({
+    where: {
+      id: req.params.id,
+    },
+  });
+  if (!user) return res.status(404).json({ msg: 'User tidak ditemukan' });
+  const match = await bcrypt.compare(currentPassword, user.password);
+  if (!match) return res.status(400).json({ msg: 'Password Sekarang salah!' });
+
+  if (currentPassword === newPassword) return res.status(400).json({ msg: 'Password Baru tidak boleh sama dengan Password sekarang!' });
+  if (newPassword !== repeatPassword) return res.status(400).json({ msg: 'Password Baru tidak sama dengan ulang Password!' });
+
+  // mengencyption password
+  const salt = await bcrypt.genSalt();
+  const hashPassword = await bcrypt.hash(newPassword, salt);
+
+  try {
+    await User.update(
+      { password: hashPassword },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+    res.status(200).json({ msg: 'Password berhasil diupdate!' });
+  } catch (error) {
+    console.log(error);
   }
 };

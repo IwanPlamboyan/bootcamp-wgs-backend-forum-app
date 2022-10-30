@@ -33,6 +33,9 @@ const Log = db.define(
     response_time: {
       type: DataTypes.STRING,
     },
+    timestamp: {
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true,

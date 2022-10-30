@@ -92,7 +92,10 @@ export const getPostById = async (req, res) => {
       where: {
         id: req.params.id,
       },
-      include: [{ model: User, attributes: ['username', 'foto_profile', 'image_url'] }],
+      include: [
+        { model: User, attributes: ['username', 'foto_profile', 'image_url'] },
+        { model: Category, attributes: ['title'] },
+      ],
     });
     res.json(response);
   } catch (error) {
@@ -223,7 +226,7 @@ export const tambahPost = async (req, res) => {
     const imageURL = `${req.protocol}://${req.get('host')}/img/posts/${imageName}`;
     const allowedType = ['.png', '.jpg', 'jpeg'];
 
-    if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: 'Gambar tidak valid' });
+    if (!allowedType.includes(ext.toLowerCase())) return res.status(422).json({ msg: 'Format gambar harus png, jpg dan jpeg' });
 
     const fileSize = file.data.length;
     if (fileSize > 5000000) return res.status(422).json({ msg: 'Gambar harus kurang dari 5 MB' });
@@ -279,10 +282,10 @@ export const updatePost = async (req, res) => {
     imageURL = `${req.protocol}://${req.get('host')}/img/posts/${imageName}`;
     const allowedType = ['.png', '.jpg', '.jpeg'];
 
-    if (!allowedType.includes(ext.toLocaleLowerCase())) return res.status(422).json({ msg: 'Invalid Image' });
+    if (!allowedType.includes(ext.toLocaleLowerCase())) return res.status(422).json({ msg: 'Format gambar harus png, jpg dan jpeg' });
 
     const fileSize = file.data.length;
-    if (fileSize > 5000000) return res.status(422).json({ msg: 'Image must be less than 5 MB' });
+    if (fileSize > 5000000) return res.status(422).json({ msg: 'Gambar harus kurang dari 5 MB' });
 
     const filePath = `./public/img/posts/${post.image_name}`;
     if (fs.existsSync(filePath)) {

@@ -62,6 +62,11 @@ export const getLog = async (req, res) => {
             [Op.like]: `%${search}%`,
           },
         },
+        {
+          timestamp: {
+            [Op.like]: `%${search}%`,
+          },
+        },
       ],
     },
     offset: offset,

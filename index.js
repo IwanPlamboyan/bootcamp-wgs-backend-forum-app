@@ -37,5 +37,5 @@ app.use('/forum', PostRouter); //memanggil routing post
 app.use('/forum', CommentRouter); //memanggil routing comment
 app.get('/log', isAdmin, getLog);
 
-app.listen(process.env.APP_PORT, '10.10.101.82', () => console.log(`server up and running on port ${process.env.APP_PORT}`));
-// app.listen(process.env.APP_PORT, () => console.log(`server up and running on port ${process.env.APP_PORT}`));
+// app.listen(process.env.APP_PORT, '10.10.101.82', () => console.log(`server up and running on port ${process.env.APP_PORT}`));
+app.listen(process.env.APP_PORT, () => console.log(`server up and running on port ${process.env.APP_PORT}`));

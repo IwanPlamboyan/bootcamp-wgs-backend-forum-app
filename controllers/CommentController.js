@@ -56,6 +56,7 @@ export const tambahComment = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   const { id } = req.params;
+  console.log(id);
   const comment = await Comment.findOne({
     where: {
       id: id,

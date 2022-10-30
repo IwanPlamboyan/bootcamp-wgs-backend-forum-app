@@ -117,7 +117,7 @@ export const updateCategory = async (req, res) => {
         where: { id: id },
       }
     );
-    res.status(201).json({ msg: 'Category berhasil diupdate' });
+    res.status(200).json({ msg: 'Category berhasil diupdate' });
   } catch (error) {
     console.log(error.message);
   }
