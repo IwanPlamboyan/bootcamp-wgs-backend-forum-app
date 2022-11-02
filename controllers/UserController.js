@@ -194,16 +194,18 @@ export const changePassword = async (req, res) => {
   const { currentPassword, newPassword, repeatPassword } = req.body;
 
   if (validator.isEmpty(currentPassword) || validator.isEmpty(newPassword) || validator.isEmpty(repeatPassword)) return res.status(400).json({ msg: 'semua field harus diisi' });
-  if (newPassword.length < 6) return res.status(400).json({ msg: 'Password sekarang minimal harus 6 karakter!' });
 
   const user = await User.findOne({
     where: {
       id: req.params.id,
     },
   });
+
   if (!user) return res.status(404).json({ msg: 'User tidak ditemukan' });
   const match = await bcrypt.compare(currentPassword, user.password);
   if (!match) return res.status(400).json({ msg: 'Password Sekarang salah!' });
+
+  if (newPassword.length < 6) return res.status(400).json({ msg: 'Password sekarang minimal harus 6 karakter!' });
 
   if (currentPassword === newPassword) return res.status(400).json({ msg: 'Password Baru tidak boleh sama dengan Password sekarang!' });
   if (newPassword !== repeatPassword) return res.status(400).json({ msg: 'Password Baru tidak sama dengan ulang Password!' });

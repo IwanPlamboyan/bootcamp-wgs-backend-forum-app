@@ -99,6 +99,7 @@ export const tambahCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   const { id, title } = req.body;
   if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi!' });
+  if (req.roles === 'user') return res.status(400).json({ msg: 'User tidak bisa mengubah category!' });
 
   const category = await Category.findOne({
     where: { id: id },

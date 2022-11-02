@@ -257,24 +257,30 @@ export const tambahPost = async (req, res) => {
   }
 };
 
-// belum kepake (opsional)
 export const updatePost = async (req, res) => {
   const { title, body, category_id } = req.body;
   if (validator.isEmpty(title)) return res.status(204).json({ msg: 'Judul harus diisi' });
   if (validator.isEmpty(body)) return res.status(204).json({ msg: 'Deskripsi harus diisi' });
+  if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'Category_id harus diisi' });
 
   const post = await Post.findOne({
     where: {
       id: req.params.id,
     },
+    include: {
+      model: User,
+      attributes: ['username'],
+    },
   });
   if (!post) return res.status(404).json({ msg: 'Data tidak ditemukan!' });
+  if (post.user.username !== req.username) return res.status(400).json({ msg: 'Kamu tidak berhak mengedit postingan orang lain' });
 
   let imageName = '';
   let imageURL = '';
 
   if (req.files === null) {
     imageName = post.image_name;
+    imageURL = post.image_url;
   } else {
     const file = req.files.image;
     const ext = path.extname(file.name);
@@ -313,6 +319,34 @@ export const updatePost = async (req, res) => {
       }
     );
     res.status(200).json({ msg: 'Post berhasil diUbah' });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+export const editPostCategory = async (req, res) => {
+  const { category_id } = req.body;
+  if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'Category_id harus diisi' });
+
+  const post = await Post.findOne({
+    where: {
+      id: req.params.id,
+    },
+  });
+  if (!post) return res.status(404).json({ msg: 'Data tidak ditemukan!' });
+
+  try {
+    await Post.update(
+      {
+        category_id: category_id,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+    res.status(200).json({ msg: 'Post Category berhasil diUbah' });
   } catch (error) {
     console.log(error.message);
   }
