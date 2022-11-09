@@ -15,16 +15,11 @@ export const getPosts = async (req, res) => {
   let result = [];
   if (last_id < 1) {
     const results = await Post.findAll({
-      attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'title', 'image_url', 'createdAt', 'updatedAt'],
       where: {
         [Op.or]: [
           {
             title: {
-              [Op.like]: '%' + search + '%',
-            },
-          },
-          {
-            body: {
               [Op.like]: '%' + search + '%',
             },
           },
@@ -213,7 +208,7 @@ export const getAllPostByUserId = async (req, res) => {
   });
 };
 
-export const tambahPost = async (req, res) => {
+export const addPost = async (req, res) => {
   const { title, body, category_id, user_id } = req.body;
   if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Judul harus diisi!' });
   if (validator.isEmpty(category_id)) return res.status(400).json({ msg: 'category_id harus diisi!' });
@@ -247,7 +242,7 @@ export const tambahPost = async (req, res) => {
         });
         res.status(201).json({ msg: 'Post berhasil ditambahkan' });
       } catch (error) {
-        console.log(error.message);
+        res.status(500).json({ msg: error.message });
       }
     });
   } else {
@@ -255,7 +250,8 @@ export const tambahPost = async (req, res) => {
       await Post.create({ title, body, category_id, user_id });
       res.status(201).json({ msg: 'Post berhasil ditambahkan' });
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
+      res.status(500).json({ msg: error.message });
     }
   }
 };
@@ -324,6 +320,7 @@ export const updatePost = async (req, res) => {
     res.status(200).json({ msg: 'Post berhasil diUbah' });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };
 
@@ -352,6 +349,7 @@ export const editPostCategory = async (req, res) => {
     res.status(200).json({ msg: 'Post Category berhasil diUbah' });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };
 
@@ -391,5 +389,6 @@ export const deletePost = async (req, res) => {
     res.status(200).json({ msg: 'Post berhasil dihapus' });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };

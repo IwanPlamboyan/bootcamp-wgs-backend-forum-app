@@ -58,9 +58,10 @@ export const getAllCategory = async (req, res) => {
       attributes: ['id', 'title'],
       order: [['id', 'DESC']],
     });
-    res.json(response);
+    res.status(200).json(response);
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };
 
@@ -73,11 +74,11 @@ export const getCategoryById = async (req, res) => {
     });
     res.json(response);
   } catch (error) {
-    console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };
 
-export const tambahCategory = async (req, res) => {
+export const addCategory = async (req, res) => {
   const { title } = req.body;
   if (validator.isEmpty(title)) return res.status(400).json({ msg: 'Nama Category harus diisi' });
   if (title.length > 50) return res.status(400).json({ msg: 'Nama Category terlalu panjang' });
@@ -93,6 +94,7 @@ export const tambahCategory = async (req, res) => {
     res.status(201).json({ msg: 'Category berhasil dibuat' });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };
 
@@ -121,6 +123,7 @@ export const updateCategory = async (req, res) => {
     res.status(200).json({ msg: 'Category berhasil diupdate' });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };
 
@@ -148,5 +151,6 @@ export const deleteCategory = async (req, res) => {
     res.status(200).json({ msg: 'Category berhasil dihapus' });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ msg: error.message });
   }
 };

@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import db from '../config/Database.js';
 import Category from './CategoryModel.js';
 import Comment from './CommentModel.js';
+import Like from './LikeModel.js';
 import User from './UserModel.js';
 
 const { DataTypes } = Sequelize;
@@ -48,6 +49,7 @@ Post.belongsTo(User, { foreignKey: 'user_id' });
 User.hasMany(Post, { foreignKey: 'user_id' });
 Post.hasMany(Comment, { foreignKey: 'post_id' });
 Comment.belongsTo(Post, { foreignKey: 'post_id' });
+Post.hasMany(Like, { foreignKey: 'post_id' });
 
 // (async () => {
 //   await db.sync();

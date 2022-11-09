@@ -39,7 +39,7 @@ export const getCommentsByPostId = async (req, res) => {
   });
 };
 
-export const tambahComment = async (req, res) => {
+export const addComment = async (req, res) => {
   const { name, post_id, user_id } = req.body;
   if (validator.isEmpty(name)) return res.status(400).json({ msg: 'field harus di isi' });
   if (post_id === undefined || post_id === false) return res.status(400).json({ msg: 'post_id harus di isi' });

@@ -9,6 +9,7 @@ import userRouter from './routes/UserRoute.js';
 import CategoryRouter from './routes/CategoryRoute.js';
 import PostRouter from './routes/PostRoute.js';
 import CommentRouter from './routes/CommentRoute.js';
+import LikeRouter from './routes/LikeRoute.js';
 import { getLog } from './controllers/LogController.js';
 import morganMiddleware from './middleware/morgan.middleware.js';
 
@@ -34,6 +35,7 @@ app.use('/users', userRouter); //memanggil routing user
 app.use('/forum', CategoryRouter); //memanggil routing category
 app.use('/forum', PostRouter); //memanggil routing post
 app.use('/forum', CommentRouter); //memanggil routing comment
+app.use('/forum', LikeRouter); //memanggil routing Like
 app.get('/log', getLog);
 
 // app.listen(process.env.APP_PORT, '10.10.101.82', () => console.log(`server up and running on port ${process.env.APP_PORT}`));
