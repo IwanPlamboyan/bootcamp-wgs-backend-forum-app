@@ -3,11 +3,11 @@ import { getCategory, getAllCategory, getCategoryById, tambahCategory, updateCat
 import { isModerator } from '../middleware/RoleMiddleware.js';
 
 const router = express.Router();
-router.get('/category', getCategory); //route ini public dan memanggil fungsi dari CategoryController untuk menampilkan category
-router.get('/categoryAll', getAllCategory); //route ini public dan memanggil fungsi dari CategoryController untuk menampilkan semua category
-router.get('/category/:id', isModerator, getCategoryById); //route ini tidak bisa diakses oleh user biasa dan memanggil fungsi dari controller CategoryController untuk menampilkan category berdasarkan id
-router.post('/category', isModerator, tambahCategory); //route ini tidak bisa diakses oleh user biasa dan memanggil fungsi dari controller CategoryController untuk menambahkan category
-router.patch('/category/:id', isModerator, updateCategory); //route ini tidak bisa diakses oleh user biasa dan memanggil fungsi dari controller CategoryController untuk mengupdate category berdasarkan id
-router.delete('/category/:id', isModerator, deleteCategory); //route ini tidak bisa diakses oleh user biasa dan memanggil fungsi dari controller CategoryController untuk menghapus category berdasarkan id
+router.get('/category', getCategory);
+router.get('/categoryAll', getAllCategory);
+router.get('/category/:id', isModerator, getCategoryById);
+router.post('/category', isModerator, tambahCategory);
+router.patch('/category/:id', isModerator, updateCategory);
+router.delete('/category/:id', isModerator, deleteCategory);
 
 export default router;

@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import Comment from '../models/CommentModel.js';
 
-export const getPost = async (req, res) => {
+export const getPosts = async (req, res) => {
   const last_id = parseInt(req.query.lastId) || 0;
   const limit = parseInt(req.query.limit) || 20;
   const search = req.query.search_query || '';
@@ -113,6 +113,9 @@ export const getAllPostByCategoryId = async (req, res) => {
       attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
       where: {
         category_id: req.params.id,
+        archive: {
+          [Op.ne]: true,
+        },
       },
       include: [
         {
@@ -217,7 +220,7 @@ export const tambahPost = async (req, res) => {
   if (validator.isEmpty(user_id)) return res.status(400).json({ msg: 'user_id harus diisi!' });
   if (validator.isEmpty(body)) return res.status(400).json({ msg: 'Deskripsi harus diisi!' });
   if (title.length >= 255) return res.status(400).json({ msg: 'Judul terlalu banyak!' });
-  if (body.length >= 20000) return res.status(400).json({ msg: 'Teks deskripsi terlalu banyak!' });
+  if (body.length >= 21000) return res.status(400).json({ msg: 'Teks deskripsi terlalu banyak!' });
 
   if (req.files !== null) {
     const file = req.files.image;
