@@ -108,9 +108,6 @@ export const getAllPostByCategoryId = async (req, res) => {
       attributes: ['id', 'title', 'body', 'createdAt', 'updatedAt'],
       where: {
         category_id: req.params.id,
-        archive: {
-          [Op.ne]: true,
-        },
       },
       include: [
         {
